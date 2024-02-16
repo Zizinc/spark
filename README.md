@@ -1,3 +1,10 @@
+# Comment from Calvin
+I cloned Spark v0.5 for study purpose, however some versions / libraries are too old and the repo is hard to be built.
+I solved the failures and this repo works with below environment:
+- IDEA 2022
+- JDK 1.8
+- Scala 2.11
+
 # Spark
 
 Lightning-Fast Cluster Computing - <http://www.spark-project.org/>

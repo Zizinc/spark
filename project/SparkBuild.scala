@@ -1,12 +1,13 @@
 import sbt._
 import Keys._
-import sbtassembly.Plugin._
-import AssemblyKeys._
+//import sbtassembly.Plugin._
+//import AssemblyKeys._
 
 object SparkBuild extends Build {
   // Hadoop version to build against. For example, "0.20.2", "0.20.205.0", or
   // "1.0.1" for Apache releases, or "0.20.2-cdh3u3" for Cloudera Hadoop.
   val HADOOP_VERSION = "0.20.205.0"
+  val AkkaVersion = "2.11.6"
 
   lazy val root = Project("root", file("."), settings = sharedSettings) aggregate(core, repl, examples, bagel)
 
@@ -21,7 +22,7 @@ object SparkBuild extends Build {
   def sharedSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.spark-project",
     version := "0.5.0",
-    scalaVersion := "2.9.1",
+    scalaVersion := "2.11.8",
     scalacOptions := Seq(/*"-deprecation",*/ "-unchecked", "-optimize"), // -deprecation is too noisy due to usage of old Hadoop API, enable it once that's no longer an issue
     unmanagedJars in Compile <<= baseDirectory map { base => (base / "lib" ** "*.jar").classpath },
     retrieveManaged := true,
@@ -30,8 +31,8 @@ object SparkBuild extends Build {
     publishTo <<= baseDirectory { base => Some(Resolver.file("Local", base / "target" / "maven" asFile)(Patterns(true, Resolver.mavenStyleBasePattern))) },
     libraryDependencies ++= Seq(
       "org.eclipse.jetty" % "jetty-server" % "7.5.3.v20111011",
-      "org.scalatest" %% "scalatest" % "1.6.1" % "test",
-      "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test"
+      "org.scalatest" %% "scalatest" % "2.1.3" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.15.2" % "test"
     ),
     /* Workaround for issue #206 (fixed after SBT 0.11.0) */
     watchTransitiveSources <<= Defaults.inDependencies[Task[Seq[File]]](watchSources.task,
@@ -58,14 +59,16 @@ object SparkBuild extends Build {
       "com.google.protobuf" % "protobuf-java" % "2.4.1",
       "de.javakaffee" % "kryo-serializers" % "0.9",
       "org.jboss.netty" % "netty" % "3.2.6.Final",
-      "it.unimi.dsi" % "fastutil" % "6.4.2"
+      "it.unimi.dsi" % "fastutil" % "6.4.2",
+      "org.scala-lang" % "scala-actors" % AkkaVersion,
+      "org.scala-lang" % "scala-xml" % "2.11.0-M4"
     )
-  ) ++ assemblySettings ++ Seq(test in assembly := {})
+  )
 
   def replSettings = sharedSettings ++ Seq(
     name := "spark-repl",
     libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
-  ) ++ assemblySettings ++ Seq(test in assembly := {})
+  )
 
   def examplesSettings = sharedSettings ++ Seq(
     name := "spark-examples",
